@@ -8,6 +8,8 @@ interface NavLinkProps {
   className?: string;
   activeClassName?: string;
   exact?: boolean;
+  disabled?: boolean;
+  onClick?: () => void;
 }
 
 const NavLink = ({
@@ -16,12 +18,28 @@ const NavLink = ({
   className = "",
   activeClassName = "text-primary font-medium",
   exact = false,
+  disabled = false,
+  onClick,
   ...props
 }: NavLinkProps) => {
   const location = useLocation();
   const isActive = exact 
     ? location.pathname === to 
     : location.pathname.startsWith(to);
+
+  if (disabled) {
+    return (
+      <span
+        className={cn(
+          "nav-link transition-all duration-200 opacity-50 cursor-not-allowed",
+          className
+        )}
+        {...props}
+      >
+        {children}
+      </span>
+    );
+  }
 
   return (
     <Link
@@ -31,6 +49,7 @@ const NavLink = ({
         className,
         isActive && activeClassName
       )}
+      onClick={onClick}
       {...props}
     >
       {children}

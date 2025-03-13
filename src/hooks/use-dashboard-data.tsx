@@ -1,6 +1,7 @@
 
 import { useState, useEffect } from "react";
 import { toast } from "sonner";
+import { UserRole } from "@/hooks/use-user-role";
 
 export interface DashboardStats {
   totalTasks: number;
@@ -43,24 +44,28 @@ export interface Department {
   progress: number;
 }
 
-export type UserRole = "hod" | "sub-department-admin" | "team-member";
-
 // Mock data generator functions
 const generateMockStats = (role: UserRole): DashboardStats => {
+  // Adjust task count based on role
+  const taskMultiplier = role === "hod" ? 1.5 : role === "sub-department-admin" ? 1.2 : 1;
+  const totalTasks = Math.floor((125 + Math.floor(Math.random() * 50)) * taskMultiplier);
+  const completedTasks = Math.floor(totalTasks * (0.5 + Math.random() * 0.2));
+  const pendingTasks = totalTasks - completedTasks;
+  
   return {
-    totalTasks: 125 + Math.floor(Math.random() * 50),
-    completedTasks: 78 + Math.floor(Math.random() * 20),
-    pendingTasks: 32 + Math.floor(Math.random() * 15),
+    totalTasks,
+    completedTasks,
+    pendingTasks,
     teamMembers: role === "team-member" ? 12 : role === "sub-department-admin" ? 28 : 87,
     resources: 34 + Math.floor(Math.random() * 10),
     departmentProgress: 68 + Math.floor(Math.random() * 20),
     communications: 56 + Math.floor(Math.random() * 30),
-    recentActivity: generateMockActivities(5),
-    upcomingTasks: generateMockTasks(4),
+    recentActivity: generateMockActivities(5, role),
+    upcomingTasks: generateMockTasks(4, role),
   };
 };
 
-const generateMockActivities = (count: number): Activity[] => {
+const generateMockActivities = (count: number, role: UserRole): Activity[] => {
   const actions = [
     "updated task",
     "completed task",
@@ -72,13 +77,30 @@ const generateMockActivities = (count: number): Activity[] => {
     "submitted form",
   ];
   
-  const users = [
-    { name: "Alex Johnson", role: "Team Lead" },
-    { name: "Sarah Chen", role: "Data Analyst" },
-    { name: "Miguel Santos", role: "Project Manager" },
-    { name: "Priya Patel", role: "Department Head" },
-    { name: "James Wilson", role: "Developer" },
-  ];
+  // Customize users based on role
+  const users = role === "hod" 
+    ? [
+        { name: "Priya Patel", role: "Department Head" },
+        { name: "Rajesh Kumar", role: "Sub-Department Admin" },
+        { name: "Sarah Chen", role: "Data Analyst" },
+        { name: "Miguel Santos", role: "Project Manager" },
+        { name: "James Wilson", role: "Team Lead" },
+      ]
+    : role === "sub-department-admin"
+    ? [
+        { name: "Rajesh Kumar", role: "Sub-Department Admin" },
+        { name: "Alex Johnson", role: "Team Lead" },
+        { name: "Sarah Chen", role: "Data Analyst" },
+        { name: "James Wilson", role: "Developer" },
+        { name: "Priya Patel", role: "Department Head" },
+      ]
+    : [
+        { name: "Amit Singh", role: "Team Member" },
+        { name: "Alex Johnson", role: "Team Lead" },
+        { name: "Sarah Chen", role: "Data Analyst" },
+        { name: "James Wilson", role: "Developer" },
+        { name: "Rajesh Kumar", role: "Sub-Department Admin" },
+      ];
 
   return Array.from({ length: count }).map((_, i) => ({
     id: `act-${i + 1}`,
@@ -89,17 +111,46 @@ const generateMockActivities = (count: number): Activity[] => {
   }));
 };
 
-const generateMockTasks = (count: number): Task[] => {
-  const titles = [
-    "Complete quarterly report",
-    "Review team performance metrics",
-    "Update department documentation",
-    "Prepare presentation for executives",
-    "Schedule team meeting",
-    "Review budget allocation",
-    "Submit resource request form",
-    "Update project timeline",
+const generateMockTasks = (count: number, role: UserRole): Task[] => {
+  // Role-specific tasks
+  const hodTitles = [
+    "Review department annual budget",
+    "Approve quarterly strategy plan",
+    "Conduct performance review meeting",
+    "Present department initiatives to minister",
+    "Review policy implementation report",
+    "Finalize interdepartmental collaboration framework",
+    "Review skill development program effectiveness",
+    "Approve labour welfare scheme amendments",
   ];
+  
+  const adminTitles = [
+    "Complete sub-department quarterly report",
+    "Review team performance metrics",
+    "Prepare resource allocation plan",
+    "Conduct team skill assessment",
+    "Update training program documentation",
+    "Schedule departmental review meeting",
+    "Prepare presentation for HOD review",
+    "Submit budget utilization report",
+  ];
+  
+  const memberTitles = [
+    "Complete training module documentation",
+    "Submit weekly progress report",
+    "Update project tracking database",
+    "Prepare presentation for team meeting",
+    "Complete assigned training modules",
+    "Review and comment on departmental guidelines",
+    "Submit expense claims for field visits",
+    "Update skills registry information",
+  ];
+
+  const titles = role === "hod" 
+    ? hodTitles 
+    : role === "sub-department-admin" 
+      ? adminTitles 
+      : memberTitles;
 
   const statuses: Array<Task["status"]> = ["completed", "in-progress", "pending", "overdue"];
   const priorities: Array<Task["priority"]> = ["low", "medium", "high"];

@@ -1,36 +1,33 @@
 
-import { useEffect, useState } from "react";
+import { useEffect } from "react";
 import { Navigate } from "react-router-dom";
 import DashboardLayout from "@/components/layout/DashboardLayout";
 import HodDashboard from "@/components/dashboard/HodDashboard";
 import SubDepartmentDashboard from "@/components/dashboard/SubDepartmentDashboard";
 import TeamMemberDashboard from "@/components/dashboard/TeamMemberDashboard";
-import { UserRole } from "@/components/auth/LoginForm";
+import { useUserRole } from "@/hooks/use-user-role";
+import { toast } from "sonner";
 
 const Dashboard = () => {
-  // In a real application, this would come from authentication
-  const [userRole, setUserRole] = useState<UserRole | null>(null);
+  const { userRole } = useUserRole();
   
-  // For demo purposes, retrieve role from localStorage
   useEffect(() => {
-    const storedRole = sessionStorage.getItem("userRole") as UserRole | null;
-    
-    // If no role is found, default to team member for demo
-    setUserRole(storedRole || "team-member");
-    
-    if (!storedRole) {
-      sessionStorage.setItem("userRole", "team-member");
+    // Show welcome message when dashboard is loaded
+    if (userRole) {
+      const roleDisplay = userRole === "hod" 
+        ? "Department Head" 
+        : userRole === "sub-department-admin" 
+          ? "Sub-Department Admin" 
+          : "Team Member";
+          
+      toast.success(`Logged in as ${roleDisplay}`, {
+        description: "Welcome to your department dashboard"
+      });
     }
-  }, []);
+  }, [userRole]);
   
+  // Handle case where user isn't authenticated
   if (!userRole) {
-    return <div>Loading...</div>;
-  }
-  
-  // Ensure user is authenticated
-  const isAuthenticated = true; // This would be a real auth check in production
-  
-  if (!isAuthenticated) {
     return <Navigate to="/" replace />;
   }
   
