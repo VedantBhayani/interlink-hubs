@@ -1,13 +1,11 @@
 
 import { useState } from "react";
-import { useNavigate } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { toast } from "sonner";
 import { Lock, User } from "lucide-react";
-
-export type UserRole = "hod" | "sub-department-admin" | "team-member";
+import { UserRole } from "@/hooks/use-user-role";
 
 interface LoginFormProps {
   onSuccess: (role: UserRole) => void;

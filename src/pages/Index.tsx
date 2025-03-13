@@ -1,12 +1,11 @@
 
-import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import LoginForm, { UserRole } from "@/components/auth/LoginForm";
-import { UserRoleContext } from "@/hooks/use-user-role";
+import { useUserRole } from "@/hooks/use-user-role";
 
 const Index = () => {
   const navigate = useNavigate();
-  const [userRole, setUserRole] = useState<UserRole | null>(null);
+  const { setUserRole } = useUserRole();
 
   const handleLoginSuccess = (role: UserRole) => {
     setUserRole(role);
